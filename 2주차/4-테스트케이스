@@ -1,0 +1,54 @@
+앞선 내용에서 회원 리포지토리를 생성했었다. 개발한 기능을 테스트하여 문제없이 돌아가는지 확인해본다.
+
+자바에서는 테스트를 위해 JUnit이라는 프레임워크를 사용한다. 
+
+파일의 위치는 main 안이 아닌 test에서 시작된다.
+파일명은 main에서 만든 클래스와 동일하게 하고 마지막에 Test를 붙여주는 것이 약속이다.
+test/java/hello.springgod/repository/MemoryMemberRepositoryTest
+
+```java
+class MemoryMemberRepositoryTest {
+	MemoryMemberRepository repository = new MemoryMemberRepository();
+
+	@Test
+    public void save(){
+        Member member = new Member();
+        member.setName("Hong");
+        repository.save(member);
+        Member result = repository.findById(member.getId()).get();
+//        System.out.println(result == member));
+//        Assertions.assertEquals(result,member);
+//        Assertions.assertThat(member).isEqualTo(result);
+        assertThat(member).isEqualTo(result);
+    }
+}
+```
+- 새로운 리포지토리를 생성해주고 테스트를 하고 싶은 메서드를 하나씩 적어준다.
+- `@Test`를 적어주게 되면 테스트 실행이 가능하다.
+- `Assertion` 안의 메서드들로 테스트를 하는데 요즘은 `assertThat`을 많이 사용하는 추세이다. 
+- `Assertion`은 여러개가 있지만 `assertj` 을 불러와서 사용한다.
+- `shift` + `f6` 을 통해 `assertThat`을 바로 사용할 수 있다.
+  `import static org.assertj.core.api.Assertions.*;`
+
+
+![](https://velog.velcdn.com/images/hey-hey/post/347bf0b8-d6f6-4d24-86de-c92f32cc993b/image.png)
+
+이렇게 테스트를 여러개를 만들게 되면 오류가 나게 될 것이다.
+리포지토리가 초기화 되지 않기 때문에 계속해서 데이터가 쌓이다 보면 중복되는 값이 존재할 수도 있다. 
+매 테스트 마다 초기화를 해주는 값이 필요하다.
+
+```java
+@AfterEach
+public void afterEach(){
+    repository.clearStore();
+}
+```
+- `@AfterEach` : 테스트가 끝날 때마다 실행된다. 
+
+리포지토리 클래스에 `clearStore()`메서드를 추가한다.
+```java
+public void clearStore(){
+    store.clear();
+}
+```
+`store.clear();` 를 통해 인스턴스를 초기화한다. 
